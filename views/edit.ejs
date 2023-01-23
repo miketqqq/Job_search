@@ -1,0 +1,7 @@
+<div class="container edit">
+    <form action="/bookmark/edit/<%= bookmark._id %>" method="POST">
+        <input type="text" name='title' value="<%= bookmark.title %>" placeholder="title">
+        <input type="text" name='remark' value="<%= bookmark.remark %>" placeholder="remark">
+        <button type="submit" class="btn btn-primary">Edit</button>
+    </form>
+</div>

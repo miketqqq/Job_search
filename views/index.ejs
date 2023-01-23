@@ -1,0 +1,45 @@
+<!-- search bar start -->
+<form action="/" method="GET" class="text-center py-3" id="search-form">
+    <label>Job title</label>
+    <input type="text" name="title" value="<%= job_title %>">
+    <button type='submit' class="btn btn-primary">Search</button>
+</form>
+<hr>
+
+<!-- table start -->
+<div class="job-list table-responsive">
+    <table class="table table-striped" style="width: 100%;">
+        <tr>
+            <th class="fit">Index</th>
+            <th>Title</th>
+            <th>Company Name</th>
+            <th>Description</th>
+            <th>Post Time</th>
+            <th colspan="2">Source</th>
+        </tr>
+        <% if (job_list) { %>
+        <% job_list.forEach(job => { %>
+        <tr>
+            <td><form id="form<%= job.index %>" action="/bookmark/" method="POST"><%= job.index %></form></td>
+            <td><input form="form<%= job.index %>" name="title" value="<%= job.title %>"></td>
+            <td><input form="form<%= job.index %>" name="company_name" value="<%= job.company_name %>"></td>
+            <td><textarea form="form<%= job.index %>" name="description" rows='3'><%= job.description %></textarea></td>
+            <td><input form="form<%= job.index %>" name="post_time" value="<%= job.post_time %>" size="5"></td>
+            <td class="fit"><a href="<%= job.link %>"><%= job.source %></a></td>
+            <td><button type='submit' form="form<%= job.index %>" class="btn btn-success fit">Save</button></td>
+            <td><input form="form<%= job.index %>" value="<%= job.link %>" name="link" hidden></td>
+        </tr>
+        <% }) %>
+        <% } %>
+    </table>
+</div>
+<hr>
+
+<!-- pagination start -->
+<div class="text-center py-2">
+    <h4 class="row justify-content-center">Page</h4>
+    <button type='submit' class="btn btn-primary" form="search-form" name="page" value="1">1</button>
+    <button type='submit' class="btn btn-primary" form="search-form" name="page" value="2">2</button>
+    <button type='submit' class="btn btn-primary" form="search-form" name="page" value="3">3</button>
+    <button type='submit' class="btn btn-primary" form="search-form" name="page" value="4">4</button>
+</div>

@@ -1,0 +1,25 @@
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <th>Title</th>
+            <th>Company Name</th>
+            <th>Description</th>
+            <th>Post Time</th>
+            <th>Save Time</th>
+            <th>Remark</th>
+            <th colspan="2">Action</th>
+        </tr>
+        <% bookmarks.forEach(bookmark => { %>
+        <tr>
+            <td><a href="<%= bookmark.link %>"><%= bookmark.title %></a></td>
+            <td><%= bookmark.company_name %></td>
+            <td><%= bookmark.description %></td>
+            <td><%= bookmark.post_time %></td>
+            <td><%= bookmark.bookmark_time.toLocaleString() %></td>
+            <td><%= bookmark.remark %></td>
+            <td><a href="/bookmark/edit/<%= bookmark._id %>" class="btn btn-info">Edit</a></td>
+            <td><a href="/bookmark/delete/<%= bookmark._id %>" class="btn btn-danger">Delete</a></td>
+        </tr>
+        <% }) %>
+    </table>
+</div>
