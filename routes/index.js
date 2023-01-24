@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const ScrapedData = require('../models/scraped_data')
 const History = require('../models/history')
-const scraper = require('../utils/scraper')
+const jobScraper = require('../utils/scraper')
 
 // Search page
 router.get('/', async (req, res) => {
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         await History.create({query_title: job_title})
 
         page = req.query.page || 1
-        job_list = await scraper(job_title, page)
+        job_list = await jobScraper(job_title, page)
 
         if (job_list) {
             // clear the db for every new search
@@ -32,7 +32,6 @@ router.get('/', async (req, res) => {
         job_title: job_title
     }
     res.render('index', context)
-    //res.send('a communication for bookmarking jobs, copy scraped data to permanent db. call POST/bookmark')
 })
 
 module.exports = router

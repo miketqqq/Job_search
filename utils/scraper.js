@@ -1,8 +1,8 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 
-async function jobsdb_scraper(position, page){
-    let query_string = {
+async function jobsdbScraper(position, page){
+    let queryString = {
         source: 'https://hk.jobsdb.com',
         url: `https://hk.jobsdb.com/hk/search-jobs/${position}/${page}?sort=createdAt`,
         articles: 'article',
@@ -13,11 +13,11 @@ async function jobsdb_scraper(position, page){
         post_time: 'time span',
         shift: 0,
     }
-    return await base_scraper(query_string)
+    return await baseScraper(queryString)
 }
 
-async function ct_scraper(position, page){
-    let query_string = {
+async function ctScraper(position, page){
+    let queryString = {
         source: 'https://www.ctgoodjobs.hk',
         url: `https://www.ctgoodjobs.hk/ctjob/listing/joblist.asp?keywordForQuickSearch=${position}&page=${page}`,
         articles: '.jl-row',
@@ -26,66 +26,75 @@ async function ct_scraper(position, page){
         company_name: 'jl-comp a',
         description: '.job-highlight',
         post_time: '.post-date',
-        shift: 100,
+        shift: 30,
     }
-    return await base_scraper(query_string)
+    return await baseScraper(queryString)
 }
 
+async function baseScraper(queryString){
+    const url = queryString.url
+    let response = await scrapeByAxios(url)
+    if (response == null) return []
+    
+    let jobList = parse(response, queryString)
+    return jobList
+}
 
-async function base_scraper(query_string){
-    const source = query_string.source
-    const url = query_string.url
-
-    const response = await axios.get(url)
+async function scrapeByAxios(url){
+    let response = await axios.get(url)
         .then(res => res.data)
         .catch(err => null);
+    return response
+}
 
-    if (response == null) return []
-
+async function parse(response, queryString){
     let $ = cheerio.load(response)
-    let articles = $(query_string.articles)
-    let job_list = []
-
+    let articles = $(queryString.articles)
+    let jobList = []
+    
+    // An article is a job
     articles.each((index, article) => {
-        const title = $(article).find(query_string.title).text()
-        const link = $(article).find(query_string.link).attr('href')
-        const company_name = $(article).find(query_string.company_name).text()
-
-        const description_items = $(article).find(query_string.description).text()
+        const title = $(article).find(queryString.title).text()
+        const link = $(article).find(queryString.link).attr('href')
+        const company_name = $(article).find(queryString.company_name).text()
+        
+        const description_items = $(article).find(queryString.description).text()
         const description = description_items.split('\n').join(', ')
-
-        const post_time = $(article).find(query_string.post_time).text()
-
+        
+        const post_time = $(article).find(queryString.post_time).text()
+        
         let job = {
-            index: index + 1 + query_string.shift,
-            source: source.split('.')[1],
+            index: index + 1 + queryString.shift,
+            source: queryString.source.split('.')[1],
             title: title,
-            link: source + link,
+            link: queryString.source + link,
             company_name: company_name,
             description: description,
             post_time: post_time,
         }
-        job_list.push(job)
+        jobList.push(job)
     })
-    return job_list
+    return jobList
 }
 
 
-async function scraper(position, page=1){
-    let jobsdb = await jobsdb_scraper(position, page)
-    let ct = await ct_scraper(position, page)
+async function jobScraper(position, page=1){
+    let jobsdb = await jobsdbScraper(position, page)
+    let ct = await ctScraper(position, page)
     //let indeed = await indeed_scraper(position)
+    
     console.log(`jobsdb returns ${jobsdb.length} results`)
     console.log(`ct returns ${ct.length} results`)
+    //console.log(`indeed returns ${indeed.length} results`)
 
     return [...jobsdb, ...ct]
 }
 
 
-module.exports = scraper
+module.exports = jobScraper
 
 /* async function indeed_scraper(position){
-    let query_string = {
+    let queryString = {
         source: 'https://hk.indeed.com',
         url: `https://hk.indeed.com/jobs?q=${position}&sort=date`,
         articles: '.slider_item',
@@ -95,5 +104,5 @@ module.exports = scraper
         description: '.job-snippet li',
         post_time: '.date',
     }
-    return await base_scraper(query_string)
+    return await base_scraper(queryString)
 } */

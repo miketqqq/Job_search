@@ -18,7 +18,9 @@
             <td><%= bookmark.bookmark_time.toLocaleString() %></td>
             <td><%= bookmark.remark %></td>
             <td><a href="/bookmark/edit/<%= bookmark._id %>" class="btn btn-info">Edit</a></td>
-            <td><a href="/bookmark/delete/<%= bookmark._id %>" class="btn btn-danger">Delete</a></td>
+            <td><form action="/bookmark/<%= bookmark._id %>?_method=DELETE" method="POST">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form></td>
         </tr>
         <% }) %>
     </table>

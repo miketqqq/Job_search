@@ -37,15 +37,18 @@ router.post('/', async (req, res) => {
 
 // edit job's remarks
 router.get('/edit/:_id', async (req, res) => {
-    const _id = req.params._id
-    let bookmark = await Bookmark.findOne({_id: _id})
-    
+    let bookmark
+    try{
+        bookmark = await Bookmark.findById(req.params._id)
+    } catch {
+       res.redirect('/bookmark')
+    }
+
     res.render('edit', {bookmark: bookmark})
 })
 
-router.post('/edit/:_id', async (req, res) => {
-    const _id = req.params._id
-    let bookmark = await Bookmark.findOne({_id: _id})
+router.put('/edit/:_id', async (req, res) => {
+    let bookmark = await Bookmark.findById(req.params._id)
     
     bookmark.remark = req.body.remark
     await bookmark.save((err, newBookmark) => {
@@ -60,9 +63,8 @@ router.post('/edit/:_id', async (req, res) => {
 
 
 //delete
-router.get('/delete/:_id', async (req, res) => {
-    const _id = req.params._id
-    let bookmark = await Bookmark.findOneAndDelete({_id: _id})
+router.delete('/:_id', async (req, res) => {
+    await Bookmark.findOneAndDelete({_id: req.params._id})
 
     res.redirect('/bookmark')
 })

@@ -6,6 +6,7 @@ const express = require('express')
 const expressLayouts = require('express-ejs-layouts')
 const bodyParser = require('body-parser')
 const path = require('path')
+const methodOverride = require('method-override')
 const app = express()
 
 //router
@@ -19,6 +20,7 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('layout', './layouts/layout')
 app.use(expressLayouts)
 app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
+app.use(methodOverride('_method'))
 
 
 //database
