@@ -20,9 +20,9 @@ router.get('/', async (req, res) => {
         job_list = await jobScraper(job_title, page)
 
         if (job_list) {
-            // clear the db for every new search
-            let deleted = await ScrapedData.deleteMany({})
-            console.log(`deleted ${deleted.deletedCount} of old documents`)
+            // clear the db for every new search, replaced by pre hook of mongoose
+            //let deleted = await ScrapedData.deleteMany({})
+            //console.log(`deleted ${deleted.deletedCount} of old documents`)
             await ScrapedData.insertMany(job_list)
         }
     }

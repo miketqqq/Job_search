@@ -1,39 +1,38 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 
-async function jobsdbScraper(position, page){
-    let queryString = {
-        source: 'https://hk.jobsdb.com',
-        url: `https://hk.jobsdb.com/hk/search-jobs/${position}/${page}?sort=createdAt`,
-        articles: 'article',
-        title: 'h1 span',
-        link: 'h1 a',
-        company_name: 'span a',
-        description: 'ul',
-        post_time: 'time span',
-        shift: 0,
+class QueryStringJDB {
+    constructor(position, page) {
+        this.source = 'https://hk.jobsdb.com'
+        this.url = `https://hk.jobsdb.com/hk/search-jobs/${position}/${page}?sort=createdAt`
+        this.articles = 'article'
+        this.title = 'h1 span'
+        this.link = 'h1 a'
+        this.company_name = 'span a'
+        this.description = 'ul'
+        this.post_time = 'time span'
+        this.shift = 0
     }
-    return await baseScraper(queryString)
 }
 
-async function ctScraper(position, page){
-    let queryString = {
-        source: 'https://www.ctgoodjobs.hk',
-        url: `https://www.ctgoodjobs.hk/ctjob/listing/joblist.asp?keywordForQuickSearch=${position}&page=${page}`,
-        articles: '.jl-row',
-        title: '.jl-title a',
-        link: '.jl-title a',
-        company_name: 'jl-comp a',
-        description: '.job-highlight',
-        post_time: '.post-date',
-        shift: 30,
+class QueryStringCT {
+    constructor(position, page) {
+        this.source = 'https://www.ctgoodjobs.hk'
+        this.url = `https://www.ctgoodjobs.hk/ctjob/listing/joblist.asp?keywordForQuickSearch=${position}&page=${page}`
+        this.articles = '.jl-row'
+        this.title = '.jl-title a'
+        this.link = '.jl-title a'
+        this.company_name = '.jl-comp a'
+        this.description = '.job-highlight'
+        this.post_time = '.post-date'
+        this.shift = 30
     }
-    return await baseScraper(queryString)
 }
 
-async function baseScraper(queryString){
+
+async function mainScraper(queryString, scraper=scrapeByAxios){
     const url = queryString.url
-    let response = await scrapeByAxios(url)
+    let response = await scraper(url)
     if (response == null) return []
     
     let jobList = parse(response, queryString)
@@ -47,7 +46,7 @@ async function scrapeByAxios(url){
     return response
 }
 
-async function parse(response, queryString){
+function parse(response, queryString){
     let $ = cheerio.load(response)
     let articles = $(queryString.articles)
     let jobList = []
@@ -79,13 +78,14 @@ async function parse(response, queryString){
 
 
 async function jobScraper(position, page=1){
-    let jobsdb = await jobsdbScraper(position, page)
-    let ct = await ctScraper(position, page)
-    //let indeed = await indeed_scraper(position)
+    let queryStringJDB = new QueryStringJDB(position, page)
+    let jobsdb = await mainScraper(queryStringJDB)
+    
+    let queryStringCT = new QueryStringCT(position, page)
+    let ct = await mainScraper(queryStringCT)
     
     console.log(`jobsdb returns ${jobsdb.length} results`)
     console.log(`ct returns ${ct.length} results`)
-    //console.log(`indeed returns ${indeed.length} results`)
 
     return [...jobsdb, ...ct]
 }
@@ -93,16 +93,47 @@ async function jobScraper(position, page=1){
 
 module.exports = jobScraper
 
-/* async function indeed_scraper(position){
-    let queryString = {
-        source: 'https://hk.indeed.com',
-        url: `https://hk.indeed.com/jobs?q=${position}&sort=date`,
-        articles: '.slider_item',
-        title: '.jobTitle span',
-        link: '.jobTitle a',
-        company_name: '.companyName',
-        description: '.job-snippet li',
-        post_time: '.date',
+
+/* class QueryStringIndeed {
+    constructor(position, page) {
+        this.source = 'https://hk.indeed.com'
+        this.url = `https://hk.indeed.com/jobs?q=${position}&sort=date`
+        this.articles = '.slider_item'
+        this.title = '.jobTitle span'
+        this.link = '.jobTitle a'
+        this.company_name = '.companyName'
+        this.description = '.job-snippet li'
+        this.post_time = '.date'
+        this.shift = 60
     }
-    return await base_scraper(queryString)
+} */
+
+/* async function jobsdbScraper(position, page){
+    let queryString = {
+        source: 'https://hk.jobsdb.com',
+        url: `https://hk.jobsdb.com/hk/search-jobs/${position}/${page}?sort=createdAt`,
+        articles: 'article',
+        title: 'h1 span',
+        link: 'h1 a',
+        company_name: 'span a',
+        description: 'ul',
+        post_time: 'time span',
+        shift: 0,
+    }
+    return await baseScraper(queryString)
+} */
+
+/* async function ctScraper(position, page){
+    let queryString = {
+        source: 'https://www.ctgoodjobs.hk',
+        url: `https://www.ctgoodjobs.hk/ctjob/listing/joblist.asp?keywordForQuickSearch=${position}&page=${page}`,
+        articles: '.jl-row',
+        title: '.jl-title a',
+        link: '.jl-title a',
+        company_name: '.jl-comp a',
+        description: '.job-highlight',
+        post_time: '.post-date',
+        shift: 30,
+    }
+    return await baseScraper(queryString)
 } */

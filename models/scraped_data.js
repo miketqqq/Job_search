@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const scrapedData = mongoose.Schema({
+const scrapedDataSchema = mongoose.Schema({
     index:{
         type: Number,
     },
@@ -25,7 +25,13 @@ const scrapedData = mongoose.Schema({
 })
 
 
-module.exports = mongoose.model('ScrapedData', scrapedData)
+scrapedDataSchema.pre('insertMany', async function(next, docs){
+    let deleted = await this.deleteMany({})
+    console.log(`deleted ${deleted.deletedCount} of old documents`)
+    return next()
+})
+
+module.exports = mongoose.model('ScrapedData', scrapedDataSchema)
 
 
 // delete after 1 hour
